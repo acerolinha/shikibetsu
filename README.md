@@ -49,7 +49,7 @@ sb -aRTe
 - `-d`, `--dirs`
     - show only directories 
 - `-e`, `--emoji`
-    - prepend entries with emojis (📄, 📁)
+    - prepend entries with emojis (📄, 📁, 🔗)
 - `-f`, `--files`
     - show only files
 - `-r`, `--reverse`
