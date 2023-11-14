@@ -4,7 +4,8 @@ use clap::Parser;
 
 #[derive(Parser)]
 #[command(
-    name = "sb",
+    name = "shikibetsu",
+    bin_name = "sb",
     about = "A command-line tool for listing files and directories.",
     version = "0.1.0",
     author = "Felipe Cardoso"
