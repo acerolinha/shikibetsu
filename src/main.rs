@@ -15,6 +15,9 @@ struct Args {
 
     #[arg(short = 'e', long = "emoji", default_value = "false")]
     show_emoji_icon: bool,
+
+    #[arg(short = 'a', long = "all", default_value = "false")]
+    show_hidden: bool,
 }
 
 struct Entry {
@@ -87,6 +90,7 @@ fn main() {
     let entries = std::fs::read_dir(args.path)
         .expect("Failed to read directory")
         .filter_map(Result::ok)
+        .filter(|f| args.show_hidden || !f.file_name().to_string_lossy().starts_with('.'))
         .map(|dir_entry| Entry::from_dir_entry(&dir_entry))
         .collect::<Vec<_>>();
 
