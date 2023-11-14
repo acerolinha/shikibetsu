@@ -42,31 +42,31 @@ sb -aRTe
 
 ## Command-line options
 
-- `-a`, `--all`
+- [x] `-a`, `--all` 
     - do not ignore entries starting with
-- `-c`, `--created`
+- [ ] `-c`, `--created`
     - display created at timestamp
-- `-d`, `--dirs`
+- [ ] `-d`, `--dirs`
     - show only directories 
-- `-e`, `--emoji`
+- [x] `-e`, `--emoji`
     - prepend entries with emojis (📄, 📁, 🔗)
-- `-f`, `--files`
+- [ ] `-f`, `--files`
     - show only files
-- `-r`, `--reverse`
+- [ ] `-r`, `--reverse`
     - reverse sort order
-- `-R`, `--recursive`
+- [ ] `-R`, `--recursive`
     - list directories recursively
-- `-s`
+- [ ] `-s`
     - sort alphabetically by name
-- `--sort=WORD`
+- [ ] `--sort=WORD`
     - sort by WORD: name (`n`), ctime (`c`), mtime (`m`), size (`s`)
-- `-S`, `--size`
+- [ ] `-S`, `--size`
     - display size
-- `-T`, `--tree`
+- [ ] `-T`, `--tree`
     - format list as a tree-view
-- `-m`, `--modified`
+- [ ] `-m`, `--modified`
     - display modified at timestamp
-- `-p`
+- [ ] `-p`
     - show permissions (`rwx`) for `[root][group][user]`
 
 
