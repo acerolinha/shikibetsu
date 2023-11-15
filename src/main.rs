@@ -19,6 +19,9 @@ struct Args {
 
     #[arg(short = 'a', long = "all", default_value = "false")]
     show_hidden: bool,
+
+    #[arg(short = 'r', long = "reverse", default_value = "false")]
+    reverse: bool,
 }
 
 struct Entry {
@@ -88,12 +91,16 @@ impl From<FileType> for EntryKind {
 fn main() {
     let args = Args::parse();
 
-    let entries = std::fs::read_dir(args.path)
+    let mut entries = std::fs::read_dir(args.path)
         .expect("Failed to read directory")
         .filter_map(Result::ok)
         .filter(|f| args.show_hidden || !f.file_name().to_string_lossy().starts_with('.'))
         .map(|dir_entry| Entry::from_dir_entry(&dir_entry))
         .collect::<Vec<_>>();
+
+    if args.reverse {
+        entries.reverse();
+    }
 
     for entry in entries {
         println!("{}", entry.display(args.show_emoji_icon));

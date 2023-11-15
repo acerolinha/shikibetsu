@@ -52,13 +52,13 @@ sb -aRTe
     - prepend entries with emojis (📄, 📁, 🔗)
 - [ ] `-f`, `--files`
     - show only files
-- [ ] `-r`, `--reverse`
+- [o] `-r`, `--reverse`
     - reverse sort order
-- [ ] `-R`, `--recursive`
+- [x] `-R`, `--recursive`
     - list directories recursively
-- [ ] `-s`
+- [o] `-s`
     - sort alphabetically by name
-- [ ] `--sort=WORD`
+- [o] `--sort=WORD`
     - sort by WORD: name (`n`), ctime (`c`), mtime (`m`), size (`s`)
 - [ ] `-S`, `--size`
     - display size
