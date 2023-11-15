@@ -44,7 +44,7 @@ sb -aRTe
 
 - [x] `-a`, `--all` 
     - do not ignore entries starting with .
-- [ ] `-c`, `--created`
+- [x] `-c`, `--created`
     - display created at timestamp
 - [ ] `-d`, `--dirs`
     - show only directories 
