@@ -43,7 +43,7 @@ sb -aRTe
 ## Command-line options
 
 - [x] `-a`, `--all` 
-    - do not ignore entries starting with
+    - do not ignore entries starting with .
 - [ ] `-c`, `--created`
     - display created at timestamp
 - [ ] `-d`, `--dirs`
