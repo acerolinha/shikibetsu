@@ -1,20 +1,62 @@
+use clap::Parser;
 use std::fs::{DirEntry, FileType};
+
+#[derive(Parser)]
+#[command(
+    name = "shikibetsu",
+    bin_name = "sb",
+    about = "A command-line tool for listing files and directories.",
+    version = "0.1.0",
+    author = "Felipe Cardoso"
+)]
+pub struct Args {
+    #[arg(default_value = ".")]
+    pub path: std::path::PathBuf,
+
+    #[arg(short = 'e', long = "emoji", default_value = "false")]
+    show_emoji_icon: bool,
+
+    #[arg(short = 'a', long = "all", default_value = "false")]
+    show_hidden: bool,
+
+    #[arg(short = 'r', long = "reverse", default_value = "false")]
+    reverse: bool,
+
+    #[arg(short = 'S', long = "size", default_value = "false")]
+    show_size: bool,
+}
 
 pub struct Entry {
     pub kind: EntryKind,
     pub name: String,
+    pub size: u64,
 }
 
 impl Entry {
     pub fn from_dir_entry(dir_entry: &DirEntry) -> Self {
+        let metadata = dir_entry.metadata().unwrap();
         Entry {
             kind: dir_entry.file_type().unwrap().into(),
             name: dir_entry.file_name().to_string_lossy().to_string(),
+            size: metadata.len(),
         }
     }
 
-    pub fn display(&self, use_emoji_icon: bool) -> String {
-        format!("[{}][{}]", self.get_icon(use_emoji_icon), self.name)
+    pub fn display(&self, args: &Args) -> String {
+        let mut metadata = vec![];
+        if args.show_size {
+            metadata.push(format!("-[{:8}]-", self.size));
+        }
+        let metadata = metadata
+            .iter()
+            .map(|e| format!("{}", e))
+            .collect::<String>();
+        format!(
+            "[{}]{}[{}]",
+            self.get_icon(args.show_emoji_icon),
+            metadata,
+            self.name
+        )
     }
 
     fn get_icon(&self, use_emoji_icon: bool) -> &str {
@@ -61,5 +103,28 @@ impl From<FileType> for EntryKind {
         } else {
             panic!("Unknown file type")
         }
+    }
+}
+
+fn get_entries(args: &Args) -> Vec<Entry> {
+    let mut entries = std::fs::read_dir(&args.path)
+        .expect("Failed to read directory")
+        .filter_map(Result::ok)
+        .filter(|f| args.show_hidden || !f.file_name().to_string_lossy().starts_with('.'))
+        .map(|dir_entry| Entry::from_dir_entry(&dir_entry))
+        .collect::<Vec<_>>();
+
+    if args.reverse {
+        entries.reverse();
+    }
+
+    entries
+}
+
+pub fn run_with_args(args: &Args) {
+    let entries = get_entries(&args);
+
+    for entry in entries {
+        println!("{}", entry.display(args));
     }
 }
