@@ -30,6 +30,9 @@ pub struct Args {
 
     #[arg(short = 'm', long = "modified", default_value = "false")]
     show_modified_ts: bool,
+
+    #[arg(short = 'c', long = "created", default_value = "false")]
+    show_created_ts: bool,
 }
 
 pub struct Entry {
@@ -37,6 +40,7 @@ pub struct Entry {
     pub name: String,
     pub size: u64,
     pub mtime: SystemTime,
+    pub ctime: SystemTime,
 }
 
 impl Entry {
@@ -47,6 +51,7 @@ impl Entry {
             name: dir_entry.file_name().to_string_lossy().to_string(),
             size: metadata.len(),
             mtime: metadata.modified().unwrap(),
+            ctime: metadata.created().unwrap(),
         }
     }
 
@@ -57,8 +62,14 @@ impl Entry {
         }
         if args.show_modified_ts {
             metadata.push(format!(
-                "-[{:12}]-",
+                "-[{:8}]-",
                 timeago::Formatter::new().convert(self.mtime.elapsed().unwrap())
+            ));
+        }
+        if args.show_created_ts {
+            metadata.push(format!(
+                "-[{:8}]-",
+                timeago::Formatter::new().convert(self.ctime.elapsed().unwrap())
             ));
         }
         let metadata = metadata
