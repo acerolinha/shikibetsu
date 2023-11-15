@@ -64,7 +64,7 @@ sb -aRTe
     - display size
 - [ ] `-T`, `--tree`
     - format list as a tree-view
-- [ ] `-m`, `--modified`
+- [x] `-m`, `--modified`
     - display modified at timestamp
 - [ ] `-p`
     - show permissions (`rwx`) for `[root][group][user]`
