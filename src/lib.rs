@@ -1,5 +1,8 @@
 use clap::Parser;
-use std::fs::{DirEntry, FileType};
+use std::{
+    fs::{DirEntry, FileType},
+    time::SystemTime,
+};
 
 #[derive(Parser)]
 #[command(
@@ -24,12 +27,16 @@ pub struct Args {
 
     #[arg(short = 'S', long = "size", default_value = "false")]
     show_size: bool,
+
+    #[arg(short = 'm', long = "modified", default_value = "false")]
+    show_modified_ts: bool,
 }
 
 pub struct Entry {
     pub kind: EntryKind,
     pub name: String,
     pub size: u64,
+    pub mtime: SystemTime,
 }
 
 impl Entry {
@@ -39,6 +46,7 @@ impl Entry {
             kind: dir_entry.file_type().unwrap().into(),
             name: dir_entry.file_name().to_string_lossy().to_string(),
             size: metadata.len(),
+            mtime: metadata.modified().unwrap(),
         }
     }
 
@@ -46,6 +54,12 @@ impl Entry {
         let mut metadata = vec![];
         if args.show_size {
             metadata.push(format!("-[{:8}]-", self.size));
+        }
+        if args.show_modified_ts {
+            metadata.push(format!(
+                "-[{:12}]-",
+                timeago::Formatter::new().convert(self.mtime.elapsed().unwrap())
+            ));
         }
         let metadata = metadata
             .iter()
