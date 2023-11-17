@@ -9,3 +9,7 @@ edition = "2021"
 clap = { version = "4.4.8", features = ["derive"] }
 clippy = "0.0.302"
 timeago = "0.4.2"
+
+[dev-dependencies]
+assert_cmd = "2.0.12"
+predicates = "3.0.4"
