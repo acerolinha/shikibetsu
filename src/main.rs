@@ -1,8 +1,8 @@
 use clap::Parser;
-use shikibetsu::{run_with_args, Args};
+use shikibetsu::Args;
 
 fn main() {
     let args = Args::parse();
 
-    run_with_args(&args);
+    shikibetsu::run_with_args(&args);
 }
