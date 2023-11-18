@@ -1,6 +1,7 @@
 use clap::Parser;
 use std::{
     fs::{DirEntry, FileType},
+    path::Path,
     time::SystemTime,
 };
 
@@ -131,15 +132,43 @@ impl From<FileType> for EntryKind {
     }
 }
 
-fn get_entries(args: &Args) -> Vec<Entry> {
-    let mut entries = std::fs::read_dir(&args.path)
+struct FilterOptions {
+    show_hidden: bool,
+}
+
+impl From<&Args> for FilterOptions {
+    fn from(item: &Args) -> Self {
+        FilterOptions {
+            show_hidden: item.show_hidden,
+        }
+    }
+}
+
+struct SortOptions {
+    reverse: bool,
+}
+
+impl From<&Args> for SortOptions {
+    fn from(item: &Args) -> Self {
+        SortOptions {
+            reverse: item.reverse,
+        }
+    }
+}
+
+fn get_entries(
+    path: &Path,
+    filter_options: &FilterOptions,
+    sort_options: &SortOptions,
+) -> Vec<Entry> {
+    let mut entries = std::fs::read_dir(path)
         .expect("Failed to read directory")
         .filter_map(Result::ok)
-        .filter(|f| args.show_hidden || !f.file_name().to_string_lossy().starts_with('.'))
+        .filter(|f| filter_options.show_hidden || !f.file_name().to_string_lossy().starts_with('.'))
         .map(|dir_entry| Entry::from_dir_entry(&dir_entry))
         .collect::<Vec<_>>();
 
-    if args.reverse {
+    if sort_options.reverse {
         entries.reverse();
     }
 
@@ -147,7 +176,9 @@ fn get_entries(args: &Args) -> Vec<Entry> {
 }
 
 pub fn run_with_args(args: &Args) {
-    let entries = get_entries(&args);
+    let filter_options = FilterOptions::from(args);
+    let sort_options = SortOptions::from(args);
+    let entries = get_entries(&args.path, &filter_options, &sort_options);
 
     for entry in entries {
         println!("{}", entry.display(args));
