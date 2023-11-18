@@ -153,3 +153,20 @@ pub fn run_with_args(args: &Args) {
         println!("{}", entry.display(args));
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use assert_cmd::prelude::*;
+    use predicates::prelude::*;
+    use std::process::Command;
+
+    #[test]
+    fn it_should_throw_when_path_does_not_exist() {
+        let mut cmd = Command::cargo_bin("shikibetsu").unwrap();
+
+        cmd.arg("./this/path/does/not/exist");
+        cmd.assert()
+            .failure()
+            .stderr(predicate::str::contains("Failed to read directory"));
+    }
+}
