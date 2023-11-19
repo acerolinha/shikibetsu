@@ -16,6 +16,7 @@ pub fn run_with_args(args: &Args) {
 #[cfg(test)]
 mod tests {
     use assert_cmd::prelude::*;
+    use assert_fs::prelude::*;
     use predicates::prelude::*;
     use std::process::Command;
 
@@ -27,5 +28,20 @@ mod tests {
         cmd.assert()
             .failure()
             .stderr(predicate::str::contains("Failed to read directory"));
+    }
+
+    #[test]
+    fn it_should_not_include_hidden_files() {
+        let mut cmd = Command::cargo_bin("shikibetsu").unwrap();
+
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("not_hidden").touch().unwrap();
+        temp.child(".hidden").touch().unwrap();
+
+        cmd.arg(temp.path());
+        cmd.assert()
+            .success()
+            .stdout(predicate::str::contains("not_hidden"))
+            .stdout(predicate::str::contains(".hidden").not());
     }
 }
