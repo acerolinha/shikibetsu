@@ -46,19 +46,17 @@ sb -aRTe
     - do not ignore entries starting with .
 - [x] `-c`, `--created`
     - display created at timestamp
-- [ ] `-d`, `--dirs`
+- [x] `-d`, `--dirs`
     - show only directories 
 - [x] `-e`, `--emoji`
     - prepend entries with emojis (📄, 📁, 🔗)
-- [ ] `-f`, `--files`
+- [x] `-f`, `--files`
     - show only files
 - [x] `-r`, `--reverse`
     - reverse sort order
 - [ ] `-R`, `--recursive`
     - list directories recursively
-- [ ] `-s`
-    - sort alphabetically by name
-- [ ] `--sort=WORD`
+- [ ] `-s`, `--sort=WORD`
     - sort by WORD: name (`n`), ctime (`c`), mtime (`m`), size (`s`)
 - [X] `-S`, `--size`
     - display size
