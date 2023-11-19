@@ -56,7 +56,7 @@ sb -aRTe
     - reverse sort order
 - [ ] `-R`, `--recursive`
     - list directories recursively
-- [ ] `-s`, `--sort=WORD`
+- [x] `-s`, `--sort=WORD`
     - sort by WORD: name (`n`), ctime (`c`), mtime (`m`), size (`s`)
 - [X] `-S`, `--size`
     - display size
