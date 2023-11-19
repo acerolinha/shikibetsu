@@ -32,4 +32,7 @@ pub struct Args {
 
     #[arg(short = 'd', long = "dirs", default_value = "false")]
     pub show_only_dirs: bool,
+
+    #[arg(short = 'f', long = "files", default_value = "false")]
+    pub show_only_files: bool,
 }

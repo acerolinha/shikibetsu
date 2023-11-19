@@ -11,6 +11,7 @@ pub struct EntriesHandler {
 struct FilterOptions {
     show_hidden: bool,
     show_only_dirs: bool,
+    show_only_files: bool,
 }
 
 impl From<&Args> for FilterOptions {
@@ -18,6 +19,7 @@ impl From<&Args> for FilterOptions {
         FilterOptions {
             show_hidden: item.show_hidden,
             show_only_dirs: item.show_only_dirs,
+            show_only_files: item.show_only_files,
         }
     }
 }
@@ -59,6 +61,13 @@ impl EntriesHandler {
             entries = entries
                 .into_iter()
                 .filter(|e| e.kind == EntryKind::Dir)
+                .collect::<Vec<_>>();
+        }
+
+        if self.filter_options.show_only_files {
+            entries = entries
+                .into_iter()
+                .filter(|e| e.kind == EntryKind::File)
                 .collect::<Vec<_>>();
         }
 
