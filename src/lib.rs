@@ -44,4 +44,19 @@ mod tests {
             .stdout(predicate::str::contains("not_hidden"))
             .stdout(predicate::str::contains(".hidden").not());
     }
+
+    #[test]
+    fn it_should_include_hidden_files() {
+        let mut cmd = Command::cargo_bin("shikibetsu").unwrap();
+
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("not_hidden").touch().unwrap();
+        temp.child(".hidden").touch().unwrap();
+
+        cmd.arg(temp.path()).arg("-a");
+        cmd.assert()
+            .success()
+            .stdout(predicate::str::contains("not_hidden"))
+            .stdout(predicate::str::contains(".hidden"));
+    }
 }
