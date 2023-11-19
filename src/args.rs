@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::entries_handler::SortKey;
+
 #[derive(Parser)]
 #[command(
     name = "shikibetsu",
@@ -35,4 +37,7 @@ pub struct Args {
 
     #[arg(short = 'f', long = "files", default_value = "false")]
     pub show_only_files: bool,
+
+    #[arg(short = 's', long = "short", default_value_t = SortKey::Name)]
+    pub sort_by: SortKey,
 }

@@ -1,7 +1,10 @@
+use std::fmt::{self, Display, Formatter};
 use std::path::Path;
 
 use crate::args::Args;
 use crate::entry::{Entry, EntryKind};
+use clap::builder::PossibleValue;
+use clap::ValueEnum;
 
 pub struct EntriesHandler {
     filter_options: FilterOptions,
@@ -24,14 +27,56 @@ impl From<&Args> for FilterOptions {
     }
 }
 
+#[derive(Clone)]
+pub enum SortKey {
+    Name,
+    Created,
+    Modified,
+    Size,
+}
+
+impl ValueEnum for SortKey {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[
+            SortKey::Name,
+            SortKey::Created,
+            SortKey::Modified,
+            SortKey::Size,
+        ]
+    }
+
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        match self {
+            SortKey::Name => Some(PossibleValue::new("n")),
+            SortKey::Created => Some(PossibleValue::new("c")),
+            SortKey::Modified => Some(PossibleValue::new("m")),
+            SortKey::Size => Some(PossibleValue::new("s")),
+        }
+    }
+}
+
+impl Display for SortKey {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        let s = match self {
+            SortKey::Name => "n",
+            SortKey::Created => "c",
+            SortKey::Modified => "m",
+            SortKey::Size => "s",
+        };
+        write!(f, "{s}")
+    }
+}
+
 struct SortOptions {
     reverse: bool,
+    sort_key: SortKey,
 }
 
 impl From<&Args> for SortOptions {
     fn from(item: &Args) -> Self {
         SortOptions {
             reverse: item.reverse,
+            sort_key: item.sort_by.clone(),
         }
     }
 }
@@ -69,6 +114,13 @@ impl EntriesHandler {
                 .into_iter()
                 .filter(|e| e.kind == EntryKind::File)
                 .collect::<Vec<_>>();
+        }
+
+        match self.sort_options.sort_key {
+            SortKey::Name => entries.sort_by(|a, b| a.name.cmp(&b.name)),
+            SortKey::Created => entries.sort_by(|a, b| a.ctime.cmp(&b.ctime)),
+            SortKey::Modified => entries.sort_by(|a, b| a.mtime.cmp(&b.mtime)),
+            SortKey::Size => entries.sort_by(|a, b| a.size.cmp(&b.size)),
         }
 
         if self.sort_options.reverse {
