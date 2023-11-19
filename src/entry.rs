@@ -81,6 +81,7 @@ impl Entry {
     }
 }
 
+#[derive(PartialEq)]
 pub enum EntryKind {
     Dir,
     File,

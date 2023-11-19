@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::args::Args;
-use crate::entry::Entry;
+use crate::entry::{Entry, EntryKind};
 
 pub struct EntriesHandler {
     filter_options: FilterOptions,
@@ -10,12 +10,14 @@ pub struct EntriesHandler {
 
 struct FilterOptions {
     show_hidden: bool,
+    show_only_dirs: bool,
 }
 
 impl From<&Args> for FilterOptions {
     fn from(item: &Args) -> Self {
         FilterOptions {
             show_hidden: item.show_hidden,
+            show_only_dirs: item.show_only_dirs,
         }
     }
 }
@@ -52,6 +54,13 @@ impl EntriesHandler {
             })
             .map(|dir_entry| Entry::from_dir_entry(&dir_entry))
             .collect::<Vec<_>>();
+
+        if self.filter_options.show_only_dirs {
+            entries = entries
+                .into_iter()
+                .filter(|e| e.kind == EntryKind::Dir)
+                .collect::<Vec<_>>();
+        }
 
         if self.sort_options.reverse {
             entries.reverse();

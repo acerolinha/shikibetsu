@@ -29,4 +29,7 @@ pub struct Args {
 
     #[arg(short = 'c', long = "created", default_value = "false")]
     pub show_created_ts: bool,
+
+    #[arg(short = 'd', long = "dirs", default_value = "false")]
+    pub show_only_dirs: bool,
 }
