@@ -4,12 +4,14 @@ mod entry;
 
 pub use args::Args;
 use entries_handler::EntriesHandler;
+use entry::DisplayOptions;
 
 pub fn run_with_args(args: &Args) {
     let entries_handler = EntriesHandler::new(args);
+    let display_options = DisplayOptions::from(args);
 
     for entry in entries_handler.get_entries(&args.path).iter() {
-        println!("{}", entry.display(args));
+        println!("{}", entry.display(&display_options));
     }
 }
 

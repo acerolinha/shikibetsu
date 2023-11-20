@@ -31,6 +31,9 @@ pub struct Args {
 
     #[arg(short = 'm', long = "modified", default_value = "false")]
     pub show_modified_ts: bool,
+    
+    #[arg(short = 'p', long = "perms", default_value = "false")]
+    pub show_permissions: bool,
 
     #[arg(short = 'r', long = "reverse", default_value = "false")]
     pub reverse: bool,

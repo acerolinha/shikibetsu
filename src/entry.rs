@@ -1,5 +1,5 @@
 use std::{
-    fs::{DirEntry, FileType},
+    fs::{DirEntry, FileType, Permissions},
     time::SystemTime,
 };
 
@@ -13,6 +13,27 @@ pub struct Entry {
     pub size: u64,
     pub mtime: SystemTime,
     pub ctime: SystemTime,
+    pub permissions: Permissions,
+}
+
+pub struct DisplayOptions {
+    show_emoji_icon: bool,
+    show_modified_ts: bool,
+    show_created_ts: bool,
+    show_size: bool,
+    show_permissions: bool,
+}
+
+impl From<&Args> for DisplayOptions {
+    fn from(item: &Args) -> Self {
+        DisplayOptions {
+            show_emoji_icon: item.show_emoji_icon,
+            show_modified_ts: item.show_modified_ts,
+            show_created_ts: item.show_created_ts,
+            show_size: item.show_size,
+            show_permissions: item.show_permissions,
+        }
+    }
 }
 
 impl Entry {
@@ -24,24 +45,25 @@ impl Entry {
             size: metadata.len(),
             mtime: metadata.modified().unwrap(),
             ctime: metadata.created().unwrap(),
+            permissions: metadata.permissions(),
         }
     }
 
-    pub fn display(&self, args: &Args) -> String {
+    pub fn display(&self, display_options: &DisplayOptions) -> String {
         let mut metadata = vec![];
-        if args.show_modified_ts {
+        if display_options.show_modified_ts {
             metadata.push(format!(
                 "-[M: {: <12}]",
                 timeago::Formatter::new().convert(self.mtime.elapsed().unwrap())
             ));
         }
-        if args.show_created_ts {
+        if display_options.show_created_ts {
             metadata.push(format!(
                 "-[C: {: <12}]",
                 timeago::Formatter::new().convert(self.ctime.elapsed().unwrap())
             ));
         }
-        if args.show_size {
+        if display_options.show_size {
             metadata.push(format!(
                 "-[S: {: <10}]",
                 humansize::format_size(self.size, DECIMAL)
@@ -53,7 +75,7 @@ impl Entry {
             .collect::<String>();
         format!(
             "[{}]{: <10}-[{}]",
-            self.get_icon(args.show_emoji_icon),
+            self.get_icon(display_options.show_emoji_icon),
             metadata,
             self.name
         )
