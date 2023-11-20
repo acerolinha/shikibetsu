@@ -63,7 +63,7 @@ sb -aRTe
 - [x] `-m`, `--modified`
     - display modified at timestamp
 - [ ] `-p`, `--perms`
-    - show permissions (`rwx`) for `[root][group][user]`
+    - show permissions (`rwx`) for `[root|group|user]`
 
 
 ## License
