@@ -60,8 +60,6 @@ sb -aRTe
     - sort by WORD: name (`n`), ctime (`c`), mtime (`m`), size (`s`)
 - [X] `-S`, `--size`
     - display size
-- [ ] `-T`, `--tree`
-    - format list as a tree-view
 - [x] `-m`, `--modified`
     - display modified at timestamp
 - [ ] `-p`
