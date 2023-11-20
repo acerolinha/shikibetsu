@@ -1,8 +1,10 @@
 use std::{
-    fs::{DirEntry, FileType, Permissions},
+    fs::{DirEntry, FileType},
+    os::unix::fs::PermissionsExt,
     time::SystemTime,
 };
 
+use file_mode::Mode;
 use humansize::DECIMAL;
 
 use crate::args::Args;
@@ -13,7 +15,7 @@ pub struct Entry {
     pub size: u64,
     pub mtime: SystemTime,
     pub ctime: SystemTime,
-    pub permissions: Permissions,
+    pub permissions: u32,
 }
 
 pub struct DisplayOptions {
@@ -45,30 +47,56 @@ impl Entry {
             size: metadata.len(),
             mtime: metadata.modified().unwrap(),
             ctime: metadata.created().unwrap(),
-            permissions: metadata.permissions(),
+            permissions: metadata.permissions().mode(),
         }
+    }
+
+    fn format_st_mode(st_mode: u32) -> String {
+        let perms = Mode::from(st_mode)
+            .to_string()
+            .chars()
+            .skip(1)
+            .collect::<String>();
+        let mut result = String::with_capacity(11);
+
+        for (i, c) in perms.chars().enumerate() {
+            if i > 0 && i % 3 == 0 {
+                result.push('|');
+            }
+            result.push(c);
+        }
+
+        format!("[{}]", result)
     }
 
     pub fn display(&self, display_options: &DisplayOptions) -> String {
         let mut metadata = vec![];
+
+        if display_options.show_permissions {
+            metadata.push(format!("-{}", Self::format_st_mode(self.permissions)));
+        }
+
         if display_options.show_modified_ts {
             metadata.push(format!(
                 "-[M: {: <12}]",
                 timeago::Formatter::new().convert(self.mtime.elapsed().unwrap())
             ));
         }
+
         if display_options.show_created_ts {
             metadata.push(format!(
                 "-[C: {: <12}]",
                 timeago::Formatter::new().convert(self.ctime.elapsed().unwrap())
             ));
         }
+
         if display_options.show_size {
             metadata.push(format!(
                 "-[S: {: <10}]",
                 humansize::format_size(self.size, DECIMAL)
             ));
         }
+
         let metadata = metadata
             .iter()
             .map(|e| format!("{}", e))
