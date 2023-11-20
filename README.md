@@ -62,7 +62,7 @@ sb -aRTe
     - display size
 - [x] `-m`, `--modified`
     - display modified at timestamp
-- [ ] `-p`, `--perms`
+- [x] `-p`, `--perms`
     - show permissions (`rwx`) for `[root|group|user]`
 
 
