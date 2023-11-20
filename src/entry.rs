@@ -3,6 +3,8 @@ use std::{
     time::SystemTime,
 };
 
+use humansize::DECIMAL;
+
 use crate::args::Args;
 
 pub struct Entry {
@@ -27,19 +29,22 @@ impl Entry {
 
     pub fn display(&self, args: &Args) -> String {
         let mut metadata = vec![];
-        if args.show_size {
-            metadata.push(format!("-[{:8}]-", self.size));
-        }
         if args.show_modified_ts {
             metadata.push(format!(
-                "-[{:8}]-",
+                "-[M: {: <12}]",
                 timeago::Formatter::new().convert(self.mtime.elapsed().unwrap())
             ));
         }
         if args.show_created_ts {
             metadata.push(format!(
-                "-[{:8}]-",
+                "-[C: {: <12}]",
                 timeago::Formatter::new().convert(self.ctime.elapsed().unwrap())
+            ));
+        }
+        if args.show_size {
+            metadata.push(format!(
+                "-[S: {: <10}]",
+                humansize::format_size(self.size, DECIMAL)
             ));
         }
         let metadata = metadata
@@ -47,7 +52,7 @@ impl Entry {
             .map(|e| format!("{}", e))
             .collect::<String>();
         format!(
-            "[{}]{}[{}]",
+            "[{}]{: <10}-[{}]",
             self.get_icon(args.show_emoji_icon),
             metadata,
             self.name
