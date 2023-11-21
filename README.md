@@ -54,7 +54,7 @@ sb -aRe
     - show only files
 - [x] `-r`, `--reverse`
     - reverse sort order
-- [ ] `-R`, `--recursive`
+- [x] `-R`, `--recursive`
     - list directories recursively
 - [x] `-s`, `--sort=WORD`
     - sort by WORD: name (`n`), ctime (`c`), mtime (`m`), size (`s`)
