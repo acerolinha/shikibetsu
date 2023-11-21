@@ -78,14 +78,14 @@ impl Entry {
 
         if display_options.show_modified_ts {
             metadata.push(format!(
-                "-[M: {: <12}]",
+                "-[M: {: <14}]",
                 timeago::Formatter::new().convert(self.mtime.elapsed().unwrap())
             ));
         }
 
         if display_options.show_created_ts {
             metadata.push(format!(
-                "-[C: {: <12}]",
+                "-[C: {: <14}]",
                 timeago::Formatter::new().convert(self.ctime.elapsed().unwrap())
             ));
         }
