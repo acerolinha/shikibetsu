@@ -42,27 +42,27 @@ sb -aRe
 
 ## Command-line options
 
-- [x] `-a`, `--all` 
+- `-a`, `--all` 
     - do not ignore entries starting with .
-- [x] `-c`, `--created`
+- `-c`, `--created`
     - display created at timestamp
-- [x] `-d`, `--dirs`
+- `-d`, `--dirs`
     - show only directories 
-- [x] `-e`, `--emoji`
+- `-e`, `--emoji`
     - prepend entries with emojis (📄, 📁, 🔗)
-- [x] `-f`, `--files`
+- `-f`, `--files`
     - show only files
-- [x] `-r`, `--reverse`
+- `-r`, `--reverse`
     - reverse sort order
-- [x] `-R`, `--recursive`
+- `-R`, `--recursive`
     - list directories recursively
-- [x] `-s`, `--sort=WORD`
+- `-s`, `--sort=WORD`
     - sort by WORD: name (`n`), ctime (`c`), mtime (`m`), size (`s`)
-- [X] `-S`, `--size`
+- `-S`, `--size`
     - display size
-- [x] `-m`, `--modified`
+- `-m`, `--modified`
     - display modified at timestamp
-- [x] `-p`, `--perms`
+- `-p`, `--perms`
     - show permissions (`rwx`) for `[root|group|user]`
 
 
