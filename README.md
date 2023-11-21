@@ -34,10 +34,10 @@ List entries in the current directory, including hidden entries, and sort by siz
 sb -a --sort=s
 ```
 
-List entries in the current directory, recursively, including hidden entries and format as a tree-view with emoji icons:
+List entries in the current directory, recursively, including hidden entries and format with emoji icons:
 
 ```bash
-sb -aRTe
+sb -aRe
 ```
 
 ## Command-line options
