@@ -10,8 +10,14 @@ pub fn run_with_args(args: &Args) {
     let entries_handler = EntriesHandler::new(args);
     let display_options = DisplayOptions::from(args);
 
-    for entry in entries_handler.get_entries(&args.path).iter() {
-        println!("{}", entry.display(&display_options));
+    if args.recursive {
+        for entry in entries_handler.get_entries_recursive(&args.path).iter() {
+            entry.display_recursive(&display_options, 0);
+        }
+    } else {
+        for entry in entries_handler.get_entries(&args.path).iter() {
+            println!("{}", entry.display(&display_options));
+        }
     }
 }
 

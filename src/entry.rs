@@ -16,6 +16,7 @@ pub struct Entry {
     pub mtime: SystemTime,
     pub ctime: SystemTime,
     pub permissions: u32,
+    pub children: Vec<Entry>,
 }
 
 pub struct DisplayOptions {
@@ -48,6 +49,7 @@ impl Entry {
             mtime: metadata.modified().unwrap(),
             ctime: metadata.created().unwrap(),
             permissions: metadata.permissions().mode(),
+            children: vec![],
         }
     }
 
@@ -73,26 +75,26 @@ impl Entry {
         let mut metadata = vec![];
 
         if display_options.show_permissions {
-            metadata.push(format!("-{}", Self::format_st_mode(self.permissions)));
+            metadata.push(format!("─{}", Self::format_st_mode(self.permissions)));
         }
 
         if display_options.show_modified_ts {
             metadata.push(format!(
-                "-[M: {: <14}]",
+                "─[M: {: <14}]",
                 timeago::Formatter::new().convert(self.mtime.elapsed().unwrap())
             ));
         }
 
         if display_options.show_created_ts {
             metadata.push(format!(
-                "-[C: {: <14}]",
+                "─[C: {: <14}]",
                 timeago::Formatter::new().convert(self.ctime.elapsed().unwrap())
             ));
         }
 
         if display_options.show_size {
             metadata.push(format!(
-                "-[S: {: <10}]",
+                "─[S: {: <10}]",
                 humansize::format_size(self.size, DECIMAL)
             ));
         }
@@ -102,7 +104,7 @@ impl Entry {
             .map(|e| format!("{}", e))
             .collect::<String>();
         format!(
-            "[{}]{: <10}-[{}]",
+            "[{}]{}─[{}]",
             self.get_icon(display_options.show_emoji_icon),
             metadata,
             self.name
@@ -132,6 +134,19 @@ impl Entry {
                     "L"
                 }
             }
+        }
+    }
+
+    pub fn display_recursive(&self, display_options: &DisplayOptions, depth: usize) {
+        println!(
+            "{:<depth$}{}{}",
+            "",
+            if depth > 0 { "└" } else { "" },
+            self.display(display_options),
+        );
+
+        for child in self.children.iter() {
+            child.display_recursive(display_options, depth + 1);
         }
     }
 }

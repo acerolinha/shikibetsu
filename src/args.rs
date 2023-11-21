@@ -35,6 +35,9 @@ pub struct Args {
     #[arg(short = 'p', long = "perms", default_value = "false")]
     pub show_permissions: bool,
 
+    #[arg(short = 'R', long = "recursive", default_value = "false")]
+    pub recursive: bool,
+
     #[arg(short = 'r', long = "reverse", default_value = "false")]
     pub reverse: bool,
 

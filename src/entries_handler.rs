@@ -129,4 +129,16 @@ impl EntriesHandler {
 
         entries
     }
+
+    pub fn get_entries_recursive(&self, path: &std::path::PathBuf) -> Vec<Entry> {
+        let mut entries = self.get_entries(path);
+
+        for entry in entries.iter_mut() {
+            if entry.kind == EntryKind::Dir {
+                entry.children = self.get_entries_recursive(&path.join(&entry.name));
+            }
+        }
+
+        entries
+    }
 }
