@@ -2,6 +2,8 @@
 
 # Shikibetsu (識別)
 
+[![Code Coverage](https://agnostk.github.io/shikibetsu/coverage/badges/flat.svg)](https://agnostk.github.io/shikibetsu/coverage)
+
 A command-line tool for listing files and directories.
 
 </div>
