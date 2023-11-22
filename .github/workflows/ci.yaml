@@ -12,14 +12,14 @@ env:
   LLVM_PROFILE_FILE=: cargo-test-%p-%m.profraw
 
 jobs:
-  check:
+  coverage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Build
         run: cargo build --verbose
       - name: Run tests
-        run: cargo test --all --verbose
+        run: cargo test --verbose
       - name: Generate coverage report
         run: |
           rustup component add llvm-tools-preview
@@ -31,7 +31,8 @@ jobs:
             git config --global user.email "${{ github.actor }}@users.noreply.github.com"
             git checkout --orphan gh-pages
             git rm -rf .
-            cp -r target/coverage/html/* .
-            git add .
+            mkdir coverage
+            cp -r target/coverage/html/* ./coverage
+            git add coverage
             git commit -m "Deploy coverage report to GitHub Pages"
             git push -u origin gh-pages --force
