@@ -22,6 +22,16 @@ jobs:
         run: cargo test --all --verbose
       - name: Generate coverage report
         run: |
+          rustup component add llvm-tools-preview
           cargo install grcov
           grcov . --binary-path ./target/debug/deps/ -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o target/coverage/html
-    
+      - name: Deploy to GitHub Pages
+        run: |
+            git config --global user.name "${{ github.actor }}"
+            git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+            git checkout --orphan gh-pages
+            git rm -rf .
+            cp -r target/coverage/html/* .
+            git add .
+            git commit -m "Deploy coverage report to GitHub Pages"
+            git push -u origin gh-pages --force
