@@ -99,10 +99,7 @@ impl Entry {
             ));
         }
 
-        let metadata = metadata
-            .iter()
-            .map(|e| format!("{}", e))
-            .collect::<String>();
+        let metadata = metadata.iter().fold(String::new(), |acc, e| acc + e);
         format!(
             "[{}]{}─[{}]",
             self.get_icon(display_options.show_emoji_icon),
