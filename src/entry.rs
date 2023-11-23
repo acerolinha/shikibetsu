@@ -148,7 +148,7 @@ impl Entry {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum EntryKind {
     Dir,
     File,
@@ -166,5 +166,185 @@ impl From<FileType> for EntryKind {
         } else {
             panic!("Unknown file type")
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_fs::prelude::*;
+    use std::fs;
+
+    #[test]
+    fn it_should_create_entry_from_dir_entry() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("child_dir").create_dir_all().unwrap();
+        let file = temp.child("file");
+        file.touch().unwrap();
+        temp.child("symlink").symlink_to_file(file.path()).unwrap();
+
+        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+
+        let dir_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(dir_entry.kind, EntryKind::Dir);
+        assert_eq!(dir_entry.name, "child_dir");
+        assert_eq!(dir_entry.children.len(), 0);
+
+        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(file_entry.kind, EntryKind::File);
+        assert_eq!(file_entry.name, "file");
+
+        let symlink_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(symlink_entry.kind, EntryKind::Symlink);
+        assert_eq!(symlink_entry.name, "symlink");
+    }
+
+    #[test]
+    fn it_should_format_st_mode() {
+        assert_eq!(Entry::format_st_mode(0o644), "[rw-|r--|r--]");
+        assert_eq!(Entry::format_st_mode(0o755), "[rwx|r-x|r-x]");
+        assert_eq!(Entry::format_st_mode(0o777), "[rwx|rwx|rwx]");
+    }
+
+    #[test]
+    fn it_should_display_permissions() {
+        let display_options = DisplayOptions {
+            show_emoji_icon: false,
+            show_modified_ts: false,
+            show_created_ts: false,
+            show_size: false,
+            show_permissions: true,
+        };
+
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file").touch().unwrap();
+
+        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(
+            file_entry.display(&display_options),
+            "[F]─[rw-|rw-|r--]─[file]"
+        );
+    }
+
+    #[test]
+    fn it_should_display_modified_ts() {
+        let display_options = DisplayOptions {
+            show_emoji_icon: false,
+            show_modified_ts: true,
+            show_created_ts: false,
+            show_size: false,
+            show_permissions: false,
+        };
+
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file").touch().unwrap();
+
+        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(
+            file_entry.display(&display_options),
+            "[F]─[M: now           ]─[file]"
+        );
+    }
+
+    #[test]
+    fn it_should_display_created_ts() {
+        let display_options = DisplayOptions {
+            show_emoji_icon: false,
+            show_modified_ts: false,
+            show_created_ts: true,
+            show_size: false,
+            show_permissions: false,
+        };
+
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file").touch().unwrap();
+
+        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(
+            file_entry.display(&display_options),
+            "[F]─[C: now           ]─[file]"
+        );
+    }
+
+    #[test]
+    fn it_should_display_size() {
+        let display_options = DisplayOptions {
+            show_emoji_icon: false,
+            show_modified_ts: false,
+            show_created_ts: false,
+            show_size: true,
+            show_permissions: false,
+        };
+
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file").touch().unwrap();
+
+        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(
+            file_entry.display(&display_options),
+            "[F]─[S: 0 B       ]─[file]"
+        );
+    }
+
+    #[test]
+    fn it_should_display_default_icons() {
+        let display_options = DisplayOptions {
+            show_emoji_icon: false,
+            show_modified_ts: false,
+            show_created_ts: false,
+            show_size: false,
+            show_permissions: false,
+        };
+
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file").touch().unwrap();
+        temp.child("dir").create_dir_all().unwrap();
+        temp.child("symlink")
+            .symlink_to_file(temp.child("file").path())
+            .unwrap();
+
+        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+
+        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(file_entry.display(&display_options), "[F]─[file]");
+
+        let dir_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(dir_entry.display(&display_options), "[D]─[dir]");
+
+        let symlink_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(symlink_entry.display(&display_options), "[L]─[symlink]");
+    }
+
+    #[test]
+    fn it_should_display_emoji_icons() {
+        let display_options = DisplayOptions {
+            show_emoji_icon: true,
+            show_modified_ts: false,
+            show_created_ts: false,
+            show_size: false,
+            show_permissions: false,
+        };
+
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file").touch().unwrap();
+        temp.child("dir").create_dir_all().unwrap();
+        temp.child("symlink")
+            .symlink_to_file(temp.child("file").path())
+            .unwrap();
+
+        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+
+        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(file_entry.display(&display_options), "[📄]─[file]");
+
+        let dir_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(dir_entry.display(&display_options), "[📁]─[dir]");
+
+        let symlink_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(symlink_entry.display(&display_options), "[🔗]─[symlink]");
     }
 }
