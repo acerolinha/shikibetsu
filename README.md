@@ -2,8 +2,8 @@
 
 # Shikibetsu (識別)
 
-[![Build Status](https://github.com/agnostk/shikibetsu/workflows/CI/badge.svg)](https://github.com/agnostk/shikibetsu/actions)
-[![Code Coverage](https://agnostk.github.io/shikibetsu/coverage/badges/flat.svg)](https://agnostk.github.io/shikibetsu/coverage)
+[![Build Status](https://github.com/agnostk/shikibetsu/workflows/CI/badge.svg?)](https://github.com/agnostk/shikibetsu/actions)
+[![Code Coverage](https://agnostk.github.io/shikibetsu/coverage/badges/flat.svg?)](https://agnostk.github.io/shikibetsu/coverage)
 
 A command-line tool for listing files and directories.
 
