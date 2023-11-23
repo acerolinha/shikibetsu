@@ -247,4 +247,25 @@ mod tests {
             "[F]─[M: now           ]─[file]"
         );
     }
+
+    #[test]
+    fn it_should_display_created_ts() {
+        let display_options = DisplayOptions {
+            show_emoji_icon: false,
+            show_modified_ts: false,
+            show_created_ts: true,
+            show_size: false,
+            show_permissions: false,
+        };
+
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file").touch().unwrap();
+
+        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(
+            file_entry.display(&display_options),
+            "[F]─[C: now           ]─[file]"
+        );
+    }
 }
