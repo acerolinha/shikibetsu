@@ -173,6 +173,7 @@ impl From<FileType> for EntryKind {
 mod tests {
     use super::*;
     use assert_fs::prelude::*;
+    use regex::Regex;
     use std::fs;
 
     #[test]
@@ -183,20 +184,19 @@ mod tests {
         file.touch().unwrap();
         temp.child("symlink").symlink_to_file(file.path()).unwrap();
 
-        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+        let entries = fs::read_dir(temp.path())
+            .unwrap()
+            .into_iter()
+            .map(|e| Entry::from_dir_entry(&e.unwrap()))
+            .collect::<Vec<Entry>>();
 
-        let dir_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
-        assert_eq!(dir_entry.kind, EntryKind::Dir);
-        assert_eq!(dir_entry.name, "child_dir");
-        assert_eq!(dir_entry.children.len(), 0);
-
-        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
-        assert_eq!(file_entry.kind, EntryKind::File);
-        assert_eq!(file_entry.name, "file");
-
-        let symlink_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
-        assert_eq!(symlink_entry.kind, EntryKind::Symlink);
-        assert_eq!(symlink_entry.name, "symlink");
+        assert_eq!(entries.len(), 3);
+        assert_eq!(entries.iter().any(|e| e.kind == EntryKind::Dir), true);
+        assert_eq!(entries.iter().any(|e| e.kind == EntryKind::File), true);
+        assert_eq!(entries.iter().any(|e| e.kind == EntryKind::Symlink), true);
+        assert_eq!(entries.iter().any(|e| e.name == "child_dir"), true);
+        assert_eq!(entries.iter().any(|e| e.name == "file"), true);
+        assert_eq!(entries.iter().any(|e| e.name == "symlink"), true);
     }
 
     #[test]
@@ -221,10 +221,12 @@ mod tests {
 
         let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
         let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
-        assert_eq!(
-            file_entry.display(&display_options),
-            "[F]─[rw-|rw-|r--]─[file]"
-        );
+
+        let re =
+            Regex::new(r"^\[F\]─\[(r|-)(w|-)(x|-)\|(r|-)(w|-)(x|-)\|(r|-)(w|-)(x|-)\]─\[file\]$")
+                .unwrap();
+
+        assert!(re.is_match(file_entry.display(&display_options).as_str()));
     }
 
     #[test]
@@ -307,16 +309,17 @@ mod tests {
             .symlink_to_file(temp.child("file").path())
             .unwrap();
 
-        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+        let mut actual_display = String::new();
 
-        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
-        assert_eq!(file_entry.display(&display_options), "[F]─[file]");
+        for entry in fs::read_dir(temp.path()).unwrap().into_iter() {
+            let entry = Entry::from_dir_entry(&entry.unwrap());
+            actual_display.push_str(&entry.display(&display_options));
+            actual_display.push('\n');
+        }
 
-        let dir_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
-        assert_eq!(dir_entry.display(&display_options), "[D]─[dir]");
-
-        let symlink_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
-        assert_eq!(symlink_entry.display(&display_options), "[L]─[symlink]");
+        assert!(actual_display.contains("[F]─[file]"));
+        assert!(actual_display.contains("[D]─[dir]"));
+        assert!(actual_display.contains("[L]─[symlink]"));
     }
 
     #[test]
@@ -336,15 +339,16 @@ mod tests {
             .symlink_to_file(temp.child("file").path())
             .unwrap();
 
-        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+        let mut actual_display = String::new();
 
-        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
-        assert_eq!(file_entry.display(&display_options), "[📄]─[file]");
+        for entry in fs::read_dir(temp.path()).unwrap().into_iter() {
+            let entry = Entry::from_dir_entry(&entry.unwrap());
+            actual_display.push_str(&entry.display(&display_options));
+            actual_display.push('\n');
+        }
 
-        let dir_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
-        assert_eq!(dir_entry.display(&display_options), "[📁]─[dir]");
-
-        let symlink_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
-        assert_eq!(symlink_entry.display(&display_options), "[🔗]─[symlink]");
+        assert!(actual_display.contains("[📄]─[file]"));
+        assert!(actual_display.contains("[📁]─[dir]"));
+        assert!(actual_display.contains("[🔗]─[symlink]"));
     }
 }

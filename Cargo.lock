@@ -709,6 +709,7 @@ dependencies = [
  "file-mode",
  "humansize",
  "predicates",
+ "regex",
  "timeago",
 ]
 
