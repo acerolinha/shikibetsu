@@ -26,6 +26,7 @@ jobs:
           cargo install grcov
           grcov . --binary-path ./target/debug/deps/ -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o target/coverage/html
       - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
         run: |
             git config --global user.name "${{ github.actor }}"
             git config --global user.email "${{ github.actor }}@users.noreply.github.com"
