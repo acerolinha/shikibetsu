@@ -198,4 +198,11 @@ mod tests {
         assert_eq!(symlink_entry.kind, EntryKind::Symlink);
         assert_eq!(symlink_entry.name, "symlink");
     }
+
+    #[test]
+    fn it_should_format_st_mode() {
+        assert_eq!(Entry::format_st_mode(0o644), "[rw-|r--|r--]");
+        assert_eq!(Entry::format_st_mode(0o755), "[rwx|r-x|r-x]");
+        assert_eq!(Entry::format_st_mode(0o777), "[rwx|rwx|rwx]");
+    }
 }
