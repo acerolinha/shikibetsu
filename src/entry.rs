@@ -148,7 +148,7 @@ impl Entry {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum EntryKind {
     Dir,
     File,
@@ -166,5 +166,36 @@ impl From<FileType> for EntryKind {
         } else {
             panic!("Unknown file type")
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_fs::prelude::*;
+    use std::fs;
+
+    #[test]
+    fn it_should_create_entry_from_dir_entry() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("child_dir").create_dir_all().unwrap();
+        let file = temp.child("file");
+        file.touch().unwrap();
+        temp.child("symlink").symlink_to_file(file.path()).unwrap();
+
+        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+
+        let dir_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(dir_entry.kind, EntryKind::Dir);
+        assert_eq!(dir_entry.name, "child_dir");
+        assert_eq!(dir_entry.children.len(), 0);
+
+        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(file_entry.kind, EntryKind::File);
+        assert_eq!(file_entry.name, "file");
+
+        let symlink_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(symlink_entry.kind, EntryKind::Symlink);
+        assert_eq!(symlink_entry.name, "symlink");
     }
 }
