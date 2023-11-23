@@ -289,4 +289,33 @@ mod tests {
             "[F]─[S: 0 B       ]─[file]"
         );
     }
+
+    #[test]
+    fn it_should_display_default_icons() {
+        let display_options = DisplayOptions {
+            show_emoji_icon: false,
+            show_modified_ts: false,
+            show_created_ts: false,
+            show_size: false,
+            show_permissions: false,
+        };
+
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file").touch().unwrap();
+        temp.child("dir").create_dir_all().unwrap();
+        temp.child("symlink")
+            .symlink_to_file(temp.child("file").path())
+            .unwrap();
+
+        let mut read_dir = fs::read_dir(temp.path()).unwrap().into_iter();
+
+        let file_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(file_entry.display(&display_options), "[F]─[file]");
+
+        let dir_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(dir_entry.display(&display_options), "[D]─[dir]");
+
+        let symlink_entry = Entry::from_dir_entry(&read_dir.next().unwrap().unwrap());
+        assert_eq!(symlink_entry.display(&display_options), "[L]─[symlink]");
+    }
 }
