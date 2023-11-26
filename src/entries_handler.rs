@@ -148,6 +148,7 @@ impl EntriesHandler {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use assert_fs::prelude::*;
 
     #[test]
     fn it_should_create_filter_options() {
@@ -186,5 +187,19 @@ mod tests {
         assert_eq!("c", SortKey::Created.to_string());
         assert_eq!("m", SortKey::Modified.to_string());
         assert_eq!("s", SortKey::Size.to_string());
+    }
+
+    #[test]
+    fn it_should_get_entries() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        temp.child("file2").touch().unwrap();
+        temp.child("file3").touch().unwrap();
+
+        let args = Args::default();
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries(temp.path());
+
+        assert_eq!(entries.len(), 3);
     }
 }
