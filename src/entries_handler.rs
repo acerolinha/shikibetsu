@@ -258,4 +258,23 @@ mod tests {
         assert_eq!(entries[1].name, "file2");
         assert_eq!(entries[2].name, "file3");
     }
+
+    #[test]
+    fn it_should_sort_by_modified_ts() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        std::thread::sleep(std::time::Duration::from_secs(1));
+        temp.child("file2").touch().unwrap();
+        std::thread::sleep(std::time::Duration::from_secs(1));
+        temp.child("file3").touch().unwrap();
+
+        let mut args = Args::default();
+        args.sort_by = SortKey::Modified;
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries(temp.path());
+
+        assert_eq!(entries[0].name, "file1");
+        assert_eq!(entries[1].name, "file2");
+        assert_eq!(entries[2].name, "file3");
+    }
 }
