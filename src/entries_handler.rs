@@ -277,4 +277,23 @@ mod tests {
         assert_eq!(entries[1].name, "file2");
         assert_eq!(entries[2].name, "file3");
     }
+
+    #[test]
+    fn it_should_sort_by_size() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        temp.child("file2").write_str("1234567890").unwrap();
+        temp.child("file3")
+            .write_str("12345678901234567890")
+            .unwrap();
+
+        let mut args = Args::default();
+        args.sort_by = SortKey::Size;
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries(temp.path());
+
+        assert_eq!(entries[0].name, "file1");
+        assert_eq!(entries[1].name, "file2");
+        assert_eq!(entries[2].name, "file3");
+    }
 }
