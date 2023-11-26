@@ -296,4 +296,48 @@ mod tests {
         assert_eq!(entries[1].name, "file2");
         assert_eq!(entries[2].name, "file3");
     }
+
+    #[test]
+    fn it_should_show_only_dirs() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        temp.child("file2").touch().unwrap();
+        temp.child("file3").touch().unwrap();
+        let dir1 = temp.child("dir1");
+        dir1.create_dir_all().unwrap();
+        dir1.child("file1").touch().unwrap();
+        dir1.child("file2").touch().unwrap();
+        dir1.child("file3").touch().unwrap();
+
+        let mut args = Args::default();
+        args.show_only_dirs = true;
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries(temp.path());
+
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].name, "dir1");
+    }
+
+    #[test]
+    fn it_should_show_only_files() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        temp.child("file2").touch().unwrap();
+        temp.child("file3").touch().unwrap();
+        let dir1 = temp.child("dir1");
+        dir1.create_dir_all().unwrap();
+        dir1.child("file1").touch().unwrap();
+        dir1.child("file2").touch().unwrap();
+        dir1.child("file3").touch().unwrap();
+
+        let mut args = Args::default();
+        args.show_only_files = true;
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries(temp.path());
+
+        assert_eq!(entries.len(), 3);
+        assert_eq!(entries[0].name, "file1");
+        assert_eq!(entries[1].name, "file2");
+        assert_eq!(entries[2].name, "file3");
+    }
 }
