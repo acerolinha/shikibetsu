@@ -142,3 +142,18 @@ impl EntriesHandler {
         entries
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_should_create_filter_options() {
+        let args = Args::default();
+        let filter_options = FilterOptions::from(&args);
+
+        assert_eq!(filter_options.show_hidden, false);
+        assert_eq!(filter_options.show_only_dirs, false);
+        assert_eq!(filter_options.show_only_files, false);
+    }
+}
