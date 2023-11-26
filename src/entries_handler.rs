@@ -165,4 +165,16 @@ mod tests {
         assert_eq!(sort_options.reverse, false);
         assert_eq!(sort_options.sort_key, SortKey::Name);
     }
+
+    #[test]
+    fn it_should_create_entries_handler() {
+        let args = Args::default();
+        let entries_handler = EntriesHandler::new(&args);
+
+        assert_eq!(entries_handler.filter_options.show_hidden, false);
+        assert_eq!(entries_handler.filter_options.show_only_dirs, false);
+        assert_eq!(entries_handler.filter_options.show_only_files, false);
+        assert_eq!(entries_handler.sort_options.reverse, false);
+        assert_eq!(entries_handler.sort_options.sort_key, SortKey::Name);
+    }
 }
