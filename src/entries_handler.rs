@@ -27,7 +27,7 @@ impl From<&Args> for FilterOptions {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum SortKey {
     Name,
     Created,
@@ -155,5 +155,14 @@ mod tests {
         assert_eq!(filter_options.show_hidden, false);
         assert_eq!(filter_options.show_only_dirs, false);
         assert_eq!(filter_options.show_only_files, false);
+    }
+
+    #[test]
+    fn it_should_create_sort_options() {
+        let args = Args::default();
+        let sort_options = SortOptions::from(&args);
+
+        assert_eq!(sort_options.reverse, false);
+        assert_eq!(sort_options.sort_key, SortKey::Name);
     }
 }
