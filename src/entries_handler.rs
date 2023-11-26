@@ -27,7 +27,7 @@ impl From<&Args> for FilterOptions {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum SortKey {
     Name,
     Created,
@@ -35,6 +35,7 @@ pub enum SortKey {
     Size,
 }
 
+//$[begin_cov_exclude]
 impl ValueEnum for SortKey {
     fn value_variants<'a>() -> &'a [Self] {
         &[
@@ -54,6 +55,7 @@ impl ValueEnum for SortKey {
         }
     }
 }
+//$[end_cov_exclude]
 
 impl Display for SortKey {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
@@ -140,5 +142,158 @@ impl EntriesHandler {
         }
 
         entries
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_fs::prelude::*;
+
+    #[test]
+    fn it_should_create_filter_options() {
+        let args = Args::default();
+        let filter_options = FilterOptions::from(&args);
+
+        assert_eq!(filter_options.show_hidden, false);
+        assert_eq!(filter_options.show_only_dirs, false);
+        assert_eq!(filter_options.show_only_files, false);
+    }
+
+    #[test]
+    fn it_should_create_sort_options() {
+        let args = Args::default();
+        let sort_options = SortOptions::from(&args);
+
+        assert_eq!(sort_options.reverse, false);
+        assert_eq!(sort_options.sort_key, SortKey::Name);
+    }
+
+    #[test]
+    fn it_should_create_entries_handler() {
+        let args = Args::default();
+        let entries_handler = EntriesHandler::new(&args);
+
+        assert_eq!(entries_handler.filter_options.show_hidden, false);
+        assert_eq!(entries_handler.filter_options.show_only_dirs, false);
+        assert_eq!(entries_handler.filter_options.show_only_files, false);
+        assert_eq!(entries_handler.sort_options.reverse, false);
+        assert_eq!(entries_handler.sort_options.sort_key, SortKey::Name);
+    }
+
+    #[test]
+    fn it_should_parse_sort_keys() {
+        assert_eq!("n", SortKey::Name.to_string());
+        assert_eq!("c", SortKey::Created.to_string());
+        assert_eq!("m", SortKey::Modified.to_string());
+        assert_eq!("s", SortKey::Size.to_string());
+    }
+
+    #[test]
+    fn it_should_get_entries() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        temp.child("file2").touch().unwrap();
+        temp.child("file3").touch().unwrap();
+
+        let args = Args::default();
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries(temp.path());
+
+        assert_eq!(entries.len(), 3);
+    }
+
+    #[test]
+    fn it_should_get_entries_recursively() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        temp.child("file2").touch().unwrap();
+        temp.child("file3").touch().unwrap();
+        let dir1 = temp.child("dir1");
+        dir1.create_dir_all().unwrap();
+        dir1.child("file1").touch().unwrap();
+        dir1.child("file2").touch().unwrap();
+        dir1.child("file3").touch().unwrap();
+
+        let args = Args::default();
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries_recursive(temp.path());
+
+        assert_eq!(entries.len(), 4);
+        assert_eq!(entries[0].children.len(), 3);
+    }
+
+    #[test]
+    fn it_should_sort_by_name() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        temp.child("file2").touch().unwrap();
+        temp.child("file3").touch().unwrap();
+
+        let mut args = Args::default();
+        args.sort_by = SortKey::Name;
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries(temp.path());
+
+        assert_eq!(entries[0].name, "file1");
+        assert_eq!(entries[1].name, "file2");
+        assert_eq!(entries[2].name, "file3");
+    }
+
+    #[test]
+    fn it_should_sort_by_created_ts() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        std::thread::sleep(std::time::Duration::from_secs(1));
+        temp.child("file2").touch().unwrap();
+        std::thread::sleep(std::time::Duration::from_secs(1));
+        temp.child("file3").touch().unwrap();
+
+        let mut args = Args::default();
+        args.sort_by = SortKey::Created;
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries(temp.path());
+
+        assert_eq!(entries[0].name, "file1");
+        assert_eq!(entries[1].name, "file2");
+        assert_eq!(entries[2].name, "file3");
+    }
+
+    #[test]
+    fn it_should_sort_by_modified_ts() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        std::thread::sleep(std::time::Duration::from_secs(1));
+        temp.child("file2").touch().unwrap();
+        std::thread::sleep(std::time::Duration::from_secs(1));
+        temp.child("file3").touch().unwrap();
+
+        let mut args = Args::default();
+        args.sort_by = SortKey::Modified;
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries(temp.path());
+
+        assert_eq!(entries[0].name, "file1");
+        assert_eq!(entries[1].name, "file2");
+        assert_eq!(entries[2].name, "file3");
+    }
+
+    #[test]
+    fn it_should_sort_by_size() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        temp.child("file2").write_str("1234567890").unwrap();
+        temp.child("file3")
+            .write_str("12345678901234567890")
+            .unwrap();
+
+        let mut args = Args::default();
+        args.sort_by = SortKey::Size;
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries(temp.path());
+
+        assert_eq!(entries[0].name, "file1");
+        assert_eq!(entries[1].name, "file2");
+        assert_eq!(entries[2].name, "file3");
     }
 }

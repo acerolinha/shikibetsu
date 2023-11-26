@@ -200,6 +200,17 @@ mod tests {
     }
 
     #[test]
+    fn it_should_create_display_options() {
+        let args = Args::default();
+        let display_options = DisplayOptions::from(&args);
+        assert_eq!(display_options.show_emoji_icon, false);
+        assert_eq!(display_options.show_modified_ts, false);
+        assert_eq!(display_options.show_created_ts, false);
+        assert_eq!(display_options.show_size, false);
+        assert_eq!(display_options.show_permissions, false);
+    }
+
+    #[test]
     fn it_should_format_st_mode() {
         assert_eq!(Entry::format_st_mode(0o644), "[rw-|r--|r--]");
         assert_eq!(Entry::format_st_mode(0o755), "[rwx|r-x|r-x]");
