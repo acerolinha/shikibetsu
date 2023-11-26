@@ -177,4 +177,12 @@ mod tests {
         assert_eq!(entries_handler.sort_options.reverse, false);
         assert_eq!(entries_handler.sort_options.sort_key, SortKey::Name);
     }
+
+    #[test]
+    fn it_should_parse_sort_keys() {
+        assert_eq!("n", SortKey::Name.to_string());
+        assert_eq!("c", SortKey::Created.to_string());
+        assert_eq!("m", SortKey::Modified.to_string());
+        assert_eq!("s", SortKey::Size.to_string());
+    }
 }
