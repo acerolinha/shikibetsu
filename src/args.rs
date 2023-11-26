@@ -2,6 +2,7 @@ use clap::Parser;
 
 use crate::entries_handler::SortKey;
 
+//$[begin_cov_exclude]
 #[derive(Parser)]
 #[command(
     name = "shikibetsu",
@@ -47,6 +48,8 @@ pub struct Args {
     #[arg(short = 's', long = "sort", default_value_t = SortKey::Name)]
     pub sort_by: SortKey,
 }
+//$[end_cov_exclude]
+
 impl Args {
     pub fn default() -> Args {
         Args {

@@ -24,7 +24,7 @@ jobs:
         run: |
           rustup component add llvm-tools-preview
           cargo install grcov
-          grcov . --binary-path ./target/debug/deps/ -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o target/coverage/html
+          grcov . --binary-path ./target/debug/deps/ -s . -t html -o target/coverage/html --ignore 'src/main.rs' --excl-start '\$\[begin_cov_exclude\]' --excl-stop '\$\[end_cov_exclude\]'
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
         run: |

@@ -6,6 +6,7 @@ pub use args::Args;
 use entries_handler::EntriesHandler;
 use entry::DisplayOptions;
 
+//$[begin_cov_exclude]
 pub fn run_with_args(args: &Args) {
     let entries_handler = EntriesHandler::new(args);
     let display_options = DisplayOptions::from(args);
@@ -20,6 +21,7 @@ pub fn run_with_args(args: &Args) {
         }
     }
 }
+//$[end_cov_exclude]
 
 #[cfg(test)]
 mod tests {

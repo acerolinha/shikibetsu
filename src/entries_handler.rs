@@ -35,6 +35,7 @@ pub enum SortKey {
     Size,
 }
 
+//$[begin_cov_exclude]
 impl ValueEnum for SortKey {
     fn value_variants<'a>() -> &'a [Self] {
         &[
@@ -54,6 +55,7 @@ impl ValueEnum for SortKey {
         }
     }
 }
+//$[end_cov_exclude]
 
 impl Display for SortKey {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
