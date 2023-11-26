@@ -31,7 +31,7 @@ pub struct Args {
 
     #[arg(short = 'm', long = "modified", default_value = "false")]
     pub show_modified_ts: bool,
-    
+
     #[arg(short = 'p', long = "perms", default_value = "false")]
     pub show_permissions: bool,
 
@@ -46,4 +46,22 @@ pub struct Args {
 
     #[arg(short = 's', long = "sort", default_value_t = SortKey::Name)]
     pub sort_by: SortKey,
+}
+impl Args {
+    pub fn default() -> Args {
+        Args {
+            path: std::path::PathBuf::from("."),
+            show_hidden: false,
+            show_created_ts: false,
+            show_only_dirs: false,
+            show_emoji_icon: false,
+            show_only_files: false,
+            show_modified_ts: false,
+            show_permissions: false,
+            recursive: false,
+            reverse: false,
+            show_size: false,
+            sort_by: SortKey::Name,
+        }
+    }
 }
