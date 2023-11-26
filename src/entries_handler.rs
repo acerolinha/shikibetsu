@@ -202,4 +202,24 @@ mod tests {
 
         assert_eq!(entries.len(), 3);
     }
+
+    #[test]
+    fn it_should_get_entries_recursively() {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.child("file1").touch().unwrap();
+        temp.child("file2").touch().unwrap();
+        temp.child("file3").touch().unwrap();
+        let dir1 = temp.child("dir1");
+        dir1.create_dir_all().unwrap();
+        dir1.child("file1").touch().unwrap();
+        dir1.child("file2").touch().unwrap();
+        dir1.child("file3").touch().unwrap();
+
+        let args = Args::default();
+        let entries_handler = EntriesHandler::new(&args);
+        let entries = entries_handler.get_entries_recursive(temp.path());
+
+        assert_eq!(entries.len(), 4);
+        assert_eq!(entries[0].children.len(), 3);
+    }
 }
